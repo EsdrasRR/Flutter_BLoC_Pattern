@@ -1,6 +1,8 @@
 import 'package:bloc_pattern/myhomepage_bloc.dart';
 import 'package:flutter/material.dart';
 
+import 'endereco_model.dart';
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -11,7 +13,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   MyHomePageBloc bloc = MyHomePageBloc();
 
   @override
@@ -20,29 +21,32 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            TextField(
+              onChanged: (value) {
+                bloc.input.add(value);
+              },
+              decoration: InputDecoration(
+                hintText: 'Insert your CEP',
+                border: OutlineInputBorder(),
+              ),
             ),
-            StreamBuilder(
-              stream: bloc.output,
-              builder: (context, snapshot) {
-                return Text(
-                  '${bloc.counter}',
-                  style: Theme.of(context).textTheme.display1,
-                );
-              }
-            ),
+            StreamBuilder<EnderecoModel>(
+                stream: bloc.output,
+                initialData: EnderecoModel(bairro: "Sem bairro"),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error', style: TextStyle(color: Colors.red));
+                  }
+                  EnderecoModel model = snapshot.data;
+                  return Text("Bairro ${model?.bairro}");
+                })
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: bloc.incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
